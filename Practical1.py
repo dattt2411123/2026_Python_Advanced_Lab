@@ -86,8 +86,8 @@ def show_marks():
     m.write(str(marks))
 
 def calculate_gpa(student_id):
-    total_credits = 0
-    total_weighted_marks = 0
+    mark_list = []
+    credit_list = []
 
     for course in courses:
         course_id = course['id']
@@ -95,39 +95,58 @@ def calculate_gpa(student_id):
 
         if course_id in marks and student_id in marks[course_id]:
             mark = marks[course_id][student_id]
-            total_credits += credit
-            total_weighted_marks += mark * credit
 
-    if total_credits > 0:
+            mark_list.append(mark)
+            credit_list.append(credit)
+
+    if len(credit_list) > 0:
+
+        marks_array = np.array(mark_list)
+        credits_array = np.array(credit_list)
+
+        total_weighted_marks = np.sum(marks_array * credits_array)
+        total_credits = np.sum(credits_array)
+
         gpa = total_weighted_marks / total_credits
+
         return round(gpa, 2)
+
     else:
         return None
 
 def calculate_all_gpas():
     gpa_array = []
+
     for student in students:
         student_id = student['id']
         gpa = calculate_gpa(student_id)
+
         if gpa is not None:
-            gpa_array.append((student['name'], gpa))
+            gpa_array.append((student_id, student['name'], gpa))
             print(f"GPA of {student['name']}: {gpa}")
-        else:
-            print(f"No marks available for {student['name']}. GPA cannot be calculated.")
+
+    return gpa_array
 
 def sort_students_by_gpa():
-    gpa_array = []
-    for student in students:
-        student_id = student['id']
-        gpa = calculate_gpa(student_id)
-        if gpa is not None:
-            gpa_array.append((student['name'], gpa))
 
-    sorted_students = sorted(gpa_array, key=lambda x: x[1], reverse=True)
+    for student in students:
+        student['gpa'] = calculate_gpa(student['id'])
+
+    students.sort(
+        key=lambda student: student['gpa'],
+        reverse=True
+    )
 
     print("Students sorted by GPA (highest to lowest):")
-    for name, gpa in sorted_students:
-        print(f"{student['id']} {name}: {gpa}")
+
+    for student in students:
+        print(
+            student['id'],
+            student['name'],
+            ":",
+            student['gpa']
+        )
+
 
 #run modules
 input_in4()
