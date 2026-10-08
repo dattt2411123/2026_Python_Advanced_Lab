@@ -203,6 +203,10 @@ def sort_students_by_gpa():
             ":",
             student['gpa']
         )
+def query(student_df):
+    condition = input('Enter the condition(Example: name == "Mr. Volunteers")')
+    result = student_df.query(condition)
+    print(result)
 
 
 
@@ -235,6 +239,7 @@ print(courses_df)
 print("\n--- Marks DataFrame ---")
 print(marks_df)
 
+query(students_df)
 
 with zipfile.ZipFile('students.dat', 'w') as zipf:
     zipf.write('students.csv')
