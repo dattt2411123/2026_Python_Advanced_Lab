@@ -2,13 +2,15 @@ import math
 import numpy as np
 import zipfile 
 import os.path
+import csv
+import pandas as po
 
 students = []
 courses = []
 marks = {}
-f = open("students.txt", "w")
-t = open("courses.txt", "w")
-m = open("marks.txt", "w")
+f = open("students.csv", "w", newline="")
+t = open("courses.csv", "w", newline="")
+m = open("marks.csv", "w", newline="")
 def input_in4():
     #get the information of courses and students
     n = int(input("The number of the student in a class: "))
@@ -32,16 +34,48 @@ def input_in4():
         courses.append(course)
 
 def list_students():
-    #list the students to the screen
+
+    writer = csv.writer(f)
+
+    writer.writerow(["id", "name", "DoB"])
+    print("---Information of Students---")
+
     for student in students:
-        f.write(str(student) + '\n') #write the list of in4-student into the file student.txt
-        print('ID student',student['id'], student['name'], student['DoB'])
+
+        writer.writerow([
+            student['id'],
+            student['name'],
+            student['DoB']
+        ])
+        
+        print(
+            'ID student',
+            student['id'],
+            student['name'],
+            student['DoB']
+        )
         
 def list_courses():
-    #list the courses to the screen
+
+    writer = csv.writer(t)
+
+    writer.writerow(["id", "name", "credit"])
+    print("---Information of COurses---")
+
     for course in courses:
-        t.write(str(course) + '\n') #write the list of in4-course into the file course.txt
-        print('ID Course',course['id'],':', course['name'])
+
+        writer.writerow([
+            course['id'],
+            course['name'],
+            course['credit']
+        ])
+
+        print(
+            'ID Course',
+            course['id'],
+            ':',
+            course['name']
+        )
         
 def mark_id():
     #get mark and select mark for the student
@@ -70,21 +104,44 @@ def mark_id():
 def show_marks():
 
     course_id = int(input("Enter ID Course: "))
+
     if course_id in marks:
+
         for student in students:
+
             student_id = student['id']
+
             if student_id in marks[course_id]:
-                
-                print('The mark of the student',
+
+                print(
+                    'The mark of the student',
                     student['name'],
                     ":",
                     marks[course_id][student_id]
                 )
+
     else:
         print("No marks")
-        
-    m.write(str(marks))
 
+    # Export marks to CSV
+    writer = csv.writer(m)
+
+    writer.writerow([
+        "CourseID",
+        "StudentID",
+        "Mark"
+    ])
+
+    for course_id in marks:
+
+        for student_id in marks[course_id]:
+
+            writer.writerow([
+                course_id,
+                student_id,
+                marks[course_id][student_id]
+            ])
+            
 def calculate_gpa(student_id):
     mark_list = []
     credit_list = []
@@ -148,6 +205,7 @@ def sort_students_by_gpa():
         )
 
 
+
 #run modules
 input_in4()
 list_students()
@@ -160,15 +218,33 @@ f.close()
 t.close()
 m.close()
 
+students_df = po.read_csv("students.csv")
+courses_df = po.read_csv("courses.csv")
+marks_df = po.read_csv("marks.csv")
+
+print(students_df)
+print(courses_df)
+print(marks_df)
+
+print("\n--- Students DataFrame ---")
+print(students_df)
+
+print("\n--- Courses DataFrame ---")
+print(courses_df)
+
+print("\n--- Marks DataFrame ---")
+print(marks_df)
+
 
 with zipfile.ZipFile('students.dat', 'w') as zipf:
-    zipf.write('students.txt')
-    zipf.write('courses.txt')
-    zipf.write('marks.txt')
+    zipf.write('students.csv')
+    zipf.write('courses.csv')
+    zipf.write('marks.csv')
 
 if os.path.exists('students.dat'):
     print("The file students.dat has been created successfully.")
 else:
     print("Failed to create the file students.dat.")
+
     
 
